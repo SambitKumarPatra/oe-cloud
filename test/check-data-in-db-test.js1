@@ -1,0 +1,228 @@
+/* jshint -W024 */
+/* jshint expr:true */
+//to avoid jshint errors for expect
+
+var bootstrap = require('./bootstrap');
+var chalk = require('chalk');
+var async = require('async');
+var loopback = require('loopback');
+var log = require('../ev-modules/ev-logger')('switch-data-source-test');
+var chai = require('chai');
+var expect = chai.expect;
+chai.use(require('chai-things'));
+
+//  This test case checks whether data is really getting stored in actual database
+//  Actually it tests switch data source indirectly
+
+describe(chalk.blue('check-data-in-db-test'), function () {
+
+    this.timeout(5000);
+
+    var datasources = [{
+            "host": "localhost",
+            "port": 27017,
+            "url": "mongodb://localhost:27017/tenant1",
+            "database": "tenant1",
+            "password": "admin",
+            "name": "tenant1",
+            "connector": "evmongodb",
+            "user": "admin",
+            "connectionTimeout": 50000
+    },
+        {
+            "host": "localhost",
+            "port": 27017,
+            "url": "mongodb://localhost:27017/tenant2",
+            "database": "tenant2",
+            "password": "admin",
+            "name": "tenant1",
+            "connector": "evmongodb",
+            "user": "admin",
+            "connectionTimeout": 50000
+    }];
+
+    var dummyModelDetails = {
+        name: 'DummyModel',
+        base: 'BaseEntity',
+        properties: {
+            'name': {
+                'type': 'string',
+            },
+            'description': {
+                'type': 'string',
+            }
+        },
+        dataSourceName: 'testdb'
+    };
+
+    var modelDetails = {
+        name: 'Account',
+        base: 'BaseEntity',
+        properties: {
+            'name': {
+                'type': 'string',
+            },
+            'description': {
+                'type': 'string',
+            }
+        },
+        dataSourceName: 'testdb'
+    };
+
+    var dummyData = {
+        "name": "DummyData",
+        "description": ""
+    };
+
+
+    var account1 = {
+        "name": "Account1",
+        "description": "For tenant1"
+    };
+
+    var account2 = {
+        "name": "Account2",
+        "description": "For tenant2"
+    };
+
+    var verifyDataSource1 = loopback.createDataSource({
+        "host": "localhost",
+        "port": 27017,
+        "url": "mongodb://localhost:27017/tenant1",
+        "database": "tenant1",
+        "password": "admin",
+        "name": "tenant1",
+        "connector": "evmongodb",
+        "user": "admin",
+        "connectionTimeout": 50000
+    });
+
+    var verifyDataSource2 = loopback.createDataSource({
+        "host": "localhost",
+        "port": 27017,
+        "url": "mongodb://localhost:27017/tenant2",
+        "database": "tenant1",
+        "password": "admin",
+        "name": "tenant2",
+        "connector": "evmongodb",
+        "user": "admin",
+        "connectionTimeout": 50000
+    });
+
+    var ModelDefinition = bootstrap.models.ModelDefinition;
+    var DataSourceDefinition = bootstrap.models.DataSourceDefinition;
+
+    before('create datasources and models', function (done) {
+        async.series([
+        function createDataSources(cb) {
+                DataSourceDefinition.create(datasources, function (err, res) {
+                    log.debug(err, res);
+                    cb();
+                });
+            },
+            function createModel(cb) {
+                ModelDefinition.create(dummyModelDetails, function (err, res) {
+                    if (err) {
+                        log.debug('unable to create model');
+                        cb();
+                    } else {
+                        cb();
+                    }
+                });
+            },
+            function createModel(cb) {
+                ModelDefinition.create(modelDetails, function (err, res) {
+                    if (err) {
+                        log.error('unable to create model');
+                        cb();
+                    } else {
+                        cb();
+                    }
+                });
+            },
+            function createQueryModel(cb) {
+                var ModelConfig = {
+                    name: 'QueryModel',
+                    properties: {
+                        'name': {
+                            'type': 'string'
+                        }
+                    },
+                    strict: false,
+                    base: 'PersistedModel',
+                    mongodb: {
+                        collection: "Account"
+                    }
+                };
+                var QueryModel = loopback.createModel(ModelConfig);
+                bootstrap.app.models(QueryModel);
+                verifyDataSource1.attach(QueryModel);
+                // eventhough description is not property it will get saved
+                QueryModel.create({
+                    'name': 'DummyAccount',
+                    'description': 'strict is false so will work'
+                }, function (err, acdata) {
+                    cb();
+                });
+            },
+            function alldone() {
+                done();
+            }
+        ]);
+    });
+
+    it('should create account in tenant1 database', function (done) {
+            var callContext = {};
+            callContext.tenantId = 'tenant1';
+            callContext.remoteUser = 'kpraveen';
+            callContext.ctx = {};
+            callContext.ctx.tenantId = 'tenant1';
+ 
+            var model = bootstrap.models.Account;
+            model.create(account1, callContext, function (err, res) {
+	    	if (err) {
+			console.log(err);
+		}
+		expect(err).to.be.null;
+                var QueryModel = loopback.findModel('QueryModel');
+                QueryModel.find({
+                    "where": {
+                        "name": "Account1"
+                    }
+                }, callContext, function (err, res) {
+                    log.debug('verify data ', err, res);
+                    expect(res).not.to.be.null;
+                    expect(res[0].description).to.be.equal("For tenant1");
+                    done();
+                });
+            });
+    });
+
+
+    it('should create account in tenant2 database', function (done) {
+            var callContext = {};
+            callContext.tenantId = 'tenant2';
+            callContext.remoteUser = 'kpraveen';
+            callContext.ctx = {};
+            callContext.ctx.tenantId = 'tenant2';
+ 
+            var model = bootstrap.models.DummyModel;
+            model.create(dummyData, function (err, res) {
+                model = bootstrap.models.Account;
+                model.create(account2, function (err, res) {
+                    if (verifyDataSource2) {
+                        //TODO
+                        log.debug('Pending check using verifyDataSource2 ');
+                    }
+                    done();
+                });
+            });
+    });
+
+
+    after('after clean up', function (done) {
+        done();
+    });
+
+
+});

@@ -1,0 +1,69 @@
+{
+    "local": {
+        "provider": "local",
+        "module": "passport-local",
+        "usernameField": "username",
+        "passwordField": "password",
+        "authPath": "/auth/local",
+        "successRedirect": "/",
+        "successReturnToOrRedirect": "/",
+        "failureRedirect": "/local",
+        "failureFlash": true,
+        "setAccessToken": true,
+        "session": false,
+        "forceDefaultCallback": true,
+        "cookie": true,
+        "json": true,
+        "failWithError": true
+    },
+    "google-login": {
+        "provider": "google",
+        "module": "passport-google-oauth",
+        "strategy": "OAuth2Strategy",
+        "clientID": "1086135573960-uvciqd0s4p64den519d5tinf2jshhu5d.apps.googleusercontent.com",
+        "clientSecret": "gGPFw0VCUe5iM-siugMPUrBh",
+        "callbackURL": "/auth/google/callback",
+        "authPath": "/auth/google",
+        "callbackPath": "/auth/google/callback",
+        "successRedirect": "/auth/account",
+        "failureRedirect": "/login",
+        "scope": [
+            "email",
+            "profile"
+        ],
+        "failureFlash": true
+    },
+    "google-link": {
+        "provider": "google",
+        "module": "passport-google-oauth",
+        "strategy": "OAuth2Strategy",
+        "clientID": "1086135573960-uvciqd0s4p64den519d5tinf2jshhu5d.apps.googleusercontent.com",
+        "clientSecret": "gGPFw0VCUe5iM-siugMPUrBh",
+        "callbackURL": "/link/google/callback",
+        "authPath": "/link/google",
+        "callbackPath": "/link/google/callback",
+        "successRedirect": "/auth/account",
+        "failureRedirect": "/login",
+        "scope": [
+            "email",
+            "profile"
+        ],
+        "link": true,
+        "failureFlash": true
+    },
+    "saml": {
+        "provider": "saml",
+        "module": "passport-saml",
+        "entryPoint": "http://blreqx132633l.ad.infosys.com:8080/OpenAM-12.0.0/SSORedirect/metaAlias/idp",
+        "issuer": "http://localhost:3000",
+        "passReqToCallback": true,
+        "cert": "MIICQDCCAakCBEeNB0swDQYJKoZIhvcNAQEEBQAwZzELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNh bGlmb3JuaWExFDASBgNVBAcTC1NhbnRhIENsYXJhMQwwCgYDVQQKEwNTdW4xEDAOBgNVBAsTB09w ZW5TU08xDTALBgNVBAMTBHRlc3QwHhcNMDgwMTE1MTkxOTM5WhcNMTgwMTEyMTkxOTM5WjBnMQsw CQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEUMBIGA1UEBxMLU2FudGEgQ2xhcmExDDAK BgNVBAoTA1N1bjEQMA4GA1UECxMHT3BlblNTTzENMAsGA1UEAxMEdGVzdDCBnzANBgkqhkiG9w0B AQEFAAOBjQAwgYkCgYEArSQc/U75GB2AtKhbGS5piiLkmJzqEsp64rDxbMJ+xDrye0EN/q1U5Of+ RkDsaN/igkAvV1cuXEgTL6RlafFPcUX7QxDhZBhsYF9pbwtMzi4A4su9hnxIhURebGEmxKW9qJNY Js0Vo5+IgjxuEWnjnnVgHTs1+mq5QYTA7E6ZyL8CAwEAATANBgkqhkiG9w0BAQQFAAOBgQB3Pw/U QzPKTPTYi9upbFXlrAKMwtFf2OW4yvGWWvlcwcNSZJmTJ8ARvVYOMEVNbsT4OFcfu2/PeYoAdiDA cGy/F2Zuj8XJJpuQRSE6PtQqBuDEHjjmOQJ0rV/r8mO1ZCtHRhpZ5zYRjhRC9eCbjx9VrFax0JDC /FfwWigmrW0Y0Q==",
+        "authScheme": "saml",
+        "callbackHTTPMethod": "post",
+        "callbackURL": "/saml/consume/callback",
+        "callbackPath": "/saml/consume/callback",
+        "authPath": "/saml/consume",
+        "failureRedirect": "/logout",
+        "successRedirect": "/"
+    }
+}
