@@ -23,7 +23,7 @@ In addition to the Loopback-provided features, this framework supports the follo
 
 ## Prerequisite
 
-* Nodejs
+* Nodejs (version > v6.9.1)
 * MongoDB
 
 ## Getting Started
