@@ -1,3 +1,9 @@
+/**
+ * 
+ * ©2016-2017 EdgeVerve Systems Limited (a fully owned Infosys subsidiary),
+ * Bangalore, India. All Rights Reserved.
+ * 
+ */
 var bootstrap = require('./bootstrap');
 var chalk = require('chalk');
 var chai = require('chai');

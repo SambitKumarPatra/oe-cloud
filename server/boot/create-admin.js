@@ -1,3 +1,9 @@
+/**
+ * 
+ * ©2016-2017 EdgeVerve Systems Limited (a fully owned Infosys subsidiary),
+ * Bangalore, India. All Rights Reserved.
+ * 
+ */
 var loopback = require('loopback');
 var async = require('async');
 var log = require('../../lib/logger')('create-admin');
